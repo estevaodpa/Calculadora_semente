@@ -47,14 +47,6 @@
     color: #555;
     margin-top: 8px;
     margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .checkbox-container {
-    display: flex;
-    align-items: center;
-    gap: 6px;
   }
   #result {
     margin-top: 20px;
@@ -87,11 +79,7 @@
     <input type="text" id="germ" placeholder="Ex: 85,5" inputmode="decimal" autocomplete="off" />
     
     <div class="info">
-      <div class="checkbox-container">
-        <input type="checkbox" id="fator" checked />
-        <label for="fator">Aplicar fator 1,10</label>
-      </div>
-      <span>O fator 1,10 é usado para compensar perdas causadas por práticas, doenças, falhas e condições como excesso de palha ou solo úmido.</span>
+      O fator <strong>1,10</strong> já está adicionado ao cálculo e é usado para compensar perdas de plantas causadas por práticas, doenças, falhas no planejamento e problemas como excesso de palha ou solo úmido, que podem diminuir o estande final desejado.
     </div>
     
     <div id="result">
@@ -123,14 +111,9 @@
       const pop = parseNumber(document.getElementById('pop').value);
       const esp = parseNumber(document.getElementById('esp').value);
       const germPercent = parseNumber(document.getElementById('germ').value);
-      const aplicarFator = document.getElementById('fator').checked;
 
       if (pop > 0 && esp > 0 && germPercent > 0) {
-        let sementesPorHectare = (pop * 100) / germPercent;
-        if (aplicarFator) {
-          sementesPorHectare *= 1.10;
-        }
-
+        const sementesPorHectare = ((pop * 100) / germPercent) * 1.10;
         const sementesPorMetro = (sementesPorHectare * esp) / 10000;
         const germDecimal = germPercent / 100;
         const plantasPorMetro = (pop * esp) / (10000 * germDecimal);
@@ -154,15 +137,11 @@
     }
 
     ['input', 'change', 'paste', 'keyup'].forEach(event => {
-      ['pop', 'esp', 'germ', 'fator'].forEach(id => {
+      ['pop', 'esp', 'germ'].forEach(id => {
         const element = document.getElementById(id);
         element.addEventListener(event, e => {
-          if (id === 'fator') {
-            calculate();
-          } else {
-            maskDecimal(e.target);
-            calculate();
-          }
+          maskDecimal(e.target);
+          calculate();
         });
       });
     });
