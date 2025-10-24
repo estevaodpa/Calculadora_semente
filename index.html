@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Calculadora de Sementes Corrigida</title>
+<title>Calculadora de Sementes Final</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -47,6 +47,14 @@
     color: #555;
     margin-top: 8px;
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   #result {
     margin-top: 20px;
@@ -70,7 +78,7 @@
     <h1>Calculadora de Sementes</h1>
 
     <label for="pop">População de plantas desejada (milhares plantas/ha):</label>
-    <input type="text" id="pop" placeholder="Ex: 10,5" inputmode="decimal" autocomplete="off" />
+    <input type="text" id="pop" placeholder="Ex: 300.000" inputmode="decimal" autocomplete="off" />
 
     <label for="esp">Espaçamento (metros):</label>
     <input type="text" id="esp" placeholder="Ex: 0,45" inputmode="decimal" autocomplete="off" />
@@ -79,7 +87,11 @@
     <input type="text" id="germ" placeholder="Ex: 85,5" inputmode="decimal" autocomplete="off" />
     
     <div class="info">
-      O fator <strong>1,10</strong> já está adicionado para compensar perdas causadas por práticas, doenças, falhas no planejamento e problemas como excesso de palha ou solo úmido, que podem diminuir o estande final desejado.
+      <div class="checkbox-container">
+        <input type="checkbox" id="fator" checked />
+        <label for="fator">Aplicar fator 1,10</label>
+      </div>
+      <span>O fator 1,10 é usado para compensar perdas causadas por práticas, doenças, falhas e condições como excesso de palha ou solo úmido.</span>
     </div>
     
     <div id="result">
@@ -94,7 +106,7 @@
   <script>
     function parseNumber(str) {
       if (!str) return 0;
-      str = str.replace(/\./g, '').replace(',', '.');
+      str = str.replace(/\\./g, '').replace(',', '.');
       const parts = str.split('.');
       if (parts.length > 2) {
         str = parts.shift() + '.' + parts.join('');
@@ -111,9 +123,14 @@
       const pop = parseNumber(document.getElementById('pop').value);
       const esp = parseNumber(document.getElementById('esp').value);
       const germPercent = parseNumber(document.getElementById('germ').value);
+      const aplicarFator = document.getElementById('fator').checked;
 
       if (pop > 0 && esp > 0 && germPercent > 0) {
-        const sementesPorHectare = ((pop * 100) / germPercent) * 1.10;
+        let sementesPorHectare = (pop * 100) / germPercent;
+        if (aplicarFator) {
+          sementesPorHectare *= 1.10;
+        }
+
         const sementesPorMetro = (sementesPorHectare * esp) / 10000;
         const germDecimal = germPercent / 100;
         const plantasPorMetro = (pop * esp) / (10000 * germDecimal);
@@ -137,11 +154,15 @@
     }
 
     ['input', 'change', 'paste', 'keyup'].forEach(event => {
-      ['pop', 'esp', 'germ'].forEach(id => {
+      ['pop', 'esp', 'germ', 'fator'].forEach(id => {
         const element = document.getElementById(id);
         element.addEventListener(event, e => {
-          maskDecimal(e.target);
-          calculate();
+          if (id === 'fator') {
+            calculate();
+          } else {
+            maskDecimal(e.target);
+            calculate();
+          }
         });
       });
     });
